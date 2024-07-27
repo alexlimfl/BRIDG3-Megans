@@ -1,7 +1,7 @@
 <template>
-  <div id="app">
+  <!-- <div id="app">
       <SmartContractList />
-  </div>
+  </div> -->
   <div>
     <img :src="imageSrc" alt="Description">
     <!-- <h1>Megans</h1> -->
@@ -17,7 +17,7 @@
 
 <script>
 import imageSrc from '@/assets/logo.png';
-import SmartContractList from './SmartContractList.vue';
+// import SmartContractList from './SmartContractList.vue';
 export default {
   name: 'HomePage',
   data() {
@@ -25,9 +25,9 @@ export default {
       imageSrc
     };
   },
-  components: {
-    SmartContractList
-  }
+  // components: {
+  //   SmartContractList
+  // }
 };
 </script>
 

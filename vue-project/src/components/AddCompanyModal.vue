@@ -40,16 +40,15 @@
         <button @click="cancel">Cancel</button>
       </footer>
       <div>
-        <button @click="sendPostRequest">Send POST Request</button>
-        <p v-if="responseMessage">{{ responseMessage }}</p> <!-- Display response message -->
+        <!-- <button @click="sendPostRequest">Send POST Request</button> -->
+        <p v-if="responseMessage">{{ responseMessage }}</p>
       </div>
     </div>
   </div>
 </template>
 
-
 <script>
-import api from '@/api'; // Adjust the path if necessary
+import api from '@/api';
 
 export default {
   name: 'AddCompanyModal',
@@ -73,6 +72,13 @@ export default {
   methods: {
     handleFileUpload(event) {
       const file = event.target.files[0];
+      // Check if file size exceeds 0.5MB
+      if (file.size > 500 * 1024) { // 500 KB in bytes
+        this.imageSizeError = 'File size exceeds the limit of 0.5MB';
+        this.image = null; // Clear the image selection
+        alert('File size exceeds the limit of 0.5MB. Please select a smaller file.');
+        return;
+      }
       const reader = new FileReader();
       reader.onload = (e) => {
         this.image = e.target.result;
@@ -80,19 +86,19 @@ export default {
       reader.readAsDataURL(file);
     },
     saveCompany() {
-      // Emit an event with the new company data
       this.$emit('save', {
         name: this.companyName,
         industry: this.industry,
         location: this.location,
         email: this.email,
         phone: this.phone,
-        image: this.image
-      });
+        image: this.image,
+      },
+    );
+      this.sendPostRequest();
       this.resetForm();
     },
     cancel() {
-      // Emit an event to close the modal
       this.$emit('cancel');
       this.resetForm();
     },
@@ -104,38 +110,44 @@ export default {
       this.phone = '';
       this.image = null;
     },
-    async sendPostRequest() {
+    sendPostRequest() {
       const postData = {
-        wallet_address: "0xBBF5a6486a2100ae17484199Cbb8d320460f6d11", // Address used to deploy this contract
-        name: this.companyName, // Contract Nickname
+        wallet_address: "0xDDAd72dcC48bf4362ad898CDD1CE3Ad3CB82Aae6",
+        name: this.companyName,
         field: {
-          wallet_address_owner: "0xBBF5a6486a2100ae17484199Cbb8d320460f6d11", // Owner of the Certificate contract
-          max_supply: 1000, // Maximum supply
-          name: this.companyName, // Name of Certificate
-          symbol: "MT" // Certificate Symbol
+          wallet_address_owner: "0xDDAd72dcC48bf4362ad898CDD1CE3Ad3CB82Aae6",
+          max_supply: 1000,
+          name: "Maschain",
+          symbol: "MT"
         },
-        image: this.image, // Base64 encoded image
-        callback_url: "https://postman-echo.com/post?" // Callback URL
+        image: this.image,
+        callback_url: "https://postman-echo.com/post?"
       };
 
       try {
-        const response = await api.postData(postData);
 
-        // Check for successful status codes
+        console.log('companyName', this.companyName);
+        console.log('industry', this.industry);
+        console.log('location', this.location);
+        console.log('email', this.email);
+        console.log('phone', this.phone);
+        console.log('image', this.image);
+        console.log('responseMessage', this.responseMessage);
+
+
+        const response = api.postData(postData);
+
         if (response.status >= 200 && response.status < 300) {
-          // Success
           this.responseMessage = 'POST request was successful!';
-          console.log('Response:', response.data); // Log response data
+          console.log('Response:', response.data);
         } else {
-          // Handle non-success status codes
           this.responseMessage = `POST request failed with status: ${response.status}`;
-          alert(`Failed to send POST request. Status: ${response.status}`); // Alert on failure
+          alert(`Failed to send POST request. Status: ${response.status}`);
           console.error('Error:', response);
         }
       } catch (error) {
-        // Handle network or other errors
         this.responseMessage = 'An error occurred while sending the POST request.';
-        alert('An error occurred while sending the POST request. Please try again.'); // Alert on error
+        alert('An error occurred while sending the POST request. Please try again.');
         console.error('Error during POST request:', error);
       }
     }

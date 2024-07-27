@@ -5,7 +5,7 @@ const apiClient = axios.create({
   headers: {
     'client_id': '74ca1e269e2057a8b07523b20e88fe73eddfe67e19e4c9c37b7d1d25c10df149',
     'client_secret': 'sk_e7b0252e3dabf1e1c68830ec195ff6ebfc95a2b8a6b324bd94ef8b8b8716dea3',
-    'content-type': 'application/json'
+    'Content-Type': 'application/json'
   }
 });
 
