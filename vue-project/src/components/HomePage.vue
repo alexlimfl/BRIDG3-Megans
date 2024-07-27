@@ -1,11 +1,7 @@
 <template>
   <div>
     <img :src="imageSrc" alt="Description">
-    <!-- <h1>Megans</h1> -->
     <h3>- Trusted Fundraising Certification Group -</h3>
-    <router-link to="/about">
-      <button>About Us</button>
-    </router-link>
     <router-link to="/companylist">
       <button>Company List</button>
     </router-link>
@@ -25,9 +21,19 @@ export default {
 };
 </script>
 
-<style scoped>
+<style>
+body {
+  background-image: url("../assets/black.jpg");
+  background: cover;
+  background-size: cover;
+}
+
+h3 {
+  color: white;
+}
+
 img {
-  max-width: 100%;
+  width: 500px;
   height: auto;
 }
 </style>
