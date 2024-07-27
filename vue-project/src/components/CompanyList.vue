@@ -11,7 +11,7 @@
     <div class="card-container">
       <div 
         class="card" 
-        v-for="contract in smartContractDetails" 
+        v-for="contract in filteredCompanies" 
         :key="contract.transactionHash" 
         @click="showDetails(contract)"
       >
@@ -19,6 +19,7 @@
         <div class="card-content">
           <h3>{{ contract.name }}</h3>
           <p><strong>Industry:</strong> {{ contract.symbol }}</p>
+          <button class="donate-button">Donate</button>
         </div>
       </div>
     </div>
@@ -57,11 +58,6 @@ export default {
   data() {
     return {
       searchQuery: '',
-      companies: [
-        { name: 'Acme Corp', industry: 'Tech', location: 'NY', email: 'info@acme.com', phone: '123-456-7890', certificateUrl: '#', imageUrl: require('@/assets/ACME_logo.jpeg')},
-        { name: 'Beta Ltd', industry: 'Finance', location: 'SF', email: 'contact@beta.com', phone: '098-765-4321', certificateUrl: '#', imageUrl: require('@/assets/Beta_logo.jpeg')}
-        // Add more companies here if needed
-      ],
       currentPage: 1,
       itemsPerPage: 5,
       showAddModal: false,
@@ -73,15 +69,15 @@ export default {
   },
   computed: {
     filteredCompanies() {
-      const filtered = this.companies.filter(company => 
-        company.name.toLowerCase().includes(this.searchQuery.toLowerCase())
+      const filtered = this.smartContractDetails.filter(contract => 
+        contract.name.toLowerCase().includes(this.searchQuery.toLowerCase())
       );
       const start = (this.currentPage - 1) * this.itemsPerPage;
       const end = start + this.itemsPerPage;
       return filtered.slice(start, end);
     },
     totalPages() {
-      return Math.ceil(this.companies.length / this.itemsPerPage);
+      return Math.ceil(this.smartContractDetails.length / this.itemsPerPage);
     }
   },
   mounted() {
@@ -92,8 +88,8 @@ export default {
     async fetchSmartContract() {
       try {
         const response = await axios.get(`${process.env.VUE_APP_API_URL}/api/certificate/get-smart-contract`, {
-                headers: headers
-              });
+          headers: headers
+        });
         this.smartContract = response.data.result || [];
         this.fetchSmartContractDetails();
         console.log('response', response);
@@ -106,7 +102,7 @@ export default {
         const contractDetailsPromises = this.smartContract.map(contract => {
           console.log("contract", contract.transactionHash);
           return axios.get(`${process.env.VUE_APP_API_URL}/api/certificate/get-smart-contract/${contract.contract_address}`, {
-             headers: headers
+            headers: headers
           });
         });
         const contractDetailsResponses = await Promise.all(contractDetailsPromises);
@@ -132,7 +128,7 @@ export default {
       this.currentPage = page;
     },
     addCompany(newCompany) {
-      this.companies.push(newCompany);
+      this.smartContractDetails.push(newCompany);
       this.showAddModal = false;
     },
     showDetails(company) {
@@ -156,26 +152,35 @@ export default {
   font-family: Arial, sans-serif;
 }
 header {
-  background-color: #4262b9;
-  padding: 20px;
+  background-color: #000000;
   color: white;
-  text-align: center;
+  padding: 10px 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: full;
+  font-family: 'Roboto', sans-serif;
+  border-bottom-color: #ffffff;
+  border-bottom-width: 10px;
 }
-.search-add {
-  margin: 20px 0;
-}
+
 .card-container {
+  color: rgb(0, 0, 0);
   display: flex;
   flex-wrap: wrap;
-  gap: 15px;
+  gap: 30px;
+  justify-content: center;
+  text-align: center;
 }
 .card {
+  color: rgb(0, 0, 0);
   background-color: #f4f4f4;
   border: 1px solid #ddd;
-  border-radius: 8px;
+  border-radius: 25px;
   padding: 20px;
   cursor: pointer;
-  width: calc(33% - 20px); /* Adjust width to fit cards in a row */
+  width: calc(30% - 20px); /* Adjust width to fit cards in a row */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   display: flex;
   align-items: center; /* Center-align items vertically */
@@ -188,10 +193,16 @@ header {
   margin-right: 25px; /* Add space between image and text */
 }
 .card-content {
+  color: rgb(0, 0, 0);
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
+
+h3{
+  color: rgb(0, 0, 0);
+}
+
 .card:hover {
   background-color: #e0e0e0;
 }
@@ -209,4 +220,54 @@ header {
   font-weight: bold;
   text-decoration: underline;
 }
+
+button {
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  padding: 10px 20px;
+  transition: background-color 0.3s, transform 0.2s;
+  background-color: #ffffff;
+  color: rgb(0, 0, 0);
+}
+
+button:hover {
+  background-color: #a7c0ff;
+}
+
+.search-add {
+  margin: 20px 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #ffffff
+}
+
+.search-bar {
+  width: 400px; /* Increase the width */
+  height: 40px; /* Increase the height */
+  padding: 10px 20px; /* Adjust padding */
+  font-size: 18px; /* Increase font size */
+  border: 1px solid #ddd;
+  border-radius: 25px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.donate-button {
+  background-color: #ff6347;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 15px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  width: 200%;
+  
+}
+.donate-button:hover{
+  background-color: #6ab350;
+}
+
 </style>
