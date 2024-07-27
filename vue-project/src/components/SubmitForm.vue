@@ -17,10 +17,10 @@ export default {
   methods: {
     async sendPostRequest() {
       const postData = {
-        wallet_address: "0xDDAd72dcC48bf4362ad898CDD1CE3Ad3CB82Aae6", // Address used to deploy this contract
+        wallet_address: "0xBBF5a6486a2100ae17484199Cbb8d320460f6d11", // Address used to deploy this contract
         name: "NFT2", // Contract Nickname
         field: {
-          wallet_address_owner: "0xDDAd72dcC48bf4362ad898CDD1CE3Ad3CB82Aae6", // Owner of the Certificate contract
+          wallet_address_owner: "0xBBF5a6486a2100ae17484199Cbb8d320460f6d11", // Owner of the Certificate contract
           max_supply: 1000, // Maximum supply
           name: "MasChain", // Name of Certificate
           symbol: "MT" // Certificate Symbol

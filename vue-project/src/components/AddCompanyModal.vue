@@ -8,7 +8,6 @@
         <div>
           <label for="companyName">Company Name:</label>
           <input v-model="companyName" id="companyName" placeholder="Company Name" />
-          <span v-if="errors.companyName">{{ errors.companyName }}</span>
         </div>
         <div>
           <label for="industry">Industry:</label>
@@ -18,31 +17,26 @@
             <option>Health</option>
             <!-- Add more industries as needed -->
           </select>
-          <span v-if="errors.industry">{{ errors.industry }}</span>
         </div>
         <div>
           <label for="location">Location:</label>
           <input v-model="location" id="location" placeholder="Location" />
-          <span v-if="errors.location">{{ errors.location }}</span>
         </div>
         <div>
           <label for="email">Contact Email:</label>
           <input v-model="email" id="email" placeholder="Contact Email" type="email" />
-          <span v-if="errors.email">{{ errors.email }}</span>
         </div>
         <div>
           <label for="phone">Phone Number:</label>
           <input v-model="phone" id="phone" placeholder="Phone Number" type="tel" />
-          <span v-if="errors.phone">{{ errors.phone }}</span>
         </div>
         <div>
           <label for="image">Upload Image:</label>
           <input type="file" @change="handleFileUpload" id="image" />
-          <span v-if="errors.image">{{ errors.image }}</span>
         </div>
       </div>
       <footer>
-        <button @click="validateAndSave">Save</button>
+        <button @click="saveCompany">Save</button>
         <button @click="cancel">Cancel</button>
       </footer>
       <div>
@@ -52,6 +46,7 @@
     </div>
   </div>
 </template>
+
 
 <script>
 import api from '@/api'; // Adjust the path if necessary
@@ -72,8 +67,7 @@ export default {
       email: '',
       phone: '',
       image: null,
-      responseMessage: '',
-      errors: {}
+      responseMessage: ''
     };
   },
   methods: {
@@ -84,27 +78,6 @@ export default {
         this.image = e.target.result;
       };
       reader.readAsDataURL(file);
-    },
-    validateAndSave() {
-      this.errors = {};
-      if (!this.companyName) this.errors.companyName = 'Company Name is required';
-      if (!this.industry) this.errors.industry = 'Industry is required';
-      if (!this.location) this.errors.location = 'Location is required';
-      if (!this.email) {
-        this.errors.email = 'Email is required';
-      } else if (!this.validEmail(this.email)) {
-        this.errors.email = 'Email is not valid';
-      }
-      if (!this.phone) {
-        this.errors.phone = 'Phone Number is required';
-      } else if (!this.validPhone(this.phone)) {
-        this.errors.phone = 'Phone Number is not valid';
-      }
-      if (!this.image) this.errors.image = 'Image is required';
-
-      if (Object.keys(this.errors).length === 0) {
-        this.saveCompany();
-      }
     },
     saveCompany() {
       // Emit an event with the new company data
@@ -130,22 +103,13 @@ export default {
       this.email = '';
       this.phone = '';
       this.image = null;
-      this.errors = {};
-    },
-    validEmail(email) {
-      const re = /^(([^<>()[\],;:\s@"]+(\.[^<>()[\],;:\s@"]+)*)|(".+"))@(([^<>()[\],;:\s@"]+\.)+[^<>()[\],;:\s@"]{2,})$/i;
-      return re.test(String(email).toLowerCase());
-    },
-    validPhone(phone) {
-      const re = /^[0-9]{10}$/;
-      return re.test(String(phone));
     },
     async sendPostRequest() {
       const postData = {
-        wallet_address: "0xDDAd72dcC48bf4362ad898CDD1CE3Ad3CB82Aae6", // Address used to deploy this contract
+        wallet_address: "0xBBF5a6486a2100ae17484199Cbb8d320460f6d11", // Address used to deploy this contract
         name: this.companyName, // Contract Nickname
         field: {
-          wallet_address_owner: "0xDDAd72dcC48bf4362ad898CDD1CE3Ad3CB82Aae6", // Owner of the Certificate contract
+          wallet_address_owner: "0xBBF5a6486a2100ae17484199Cbb8d320460f6d11", // Owner of the Certificate contract
           max_supply: 1000, // Maximum supply
           name: this.companyName, // Name of Certificate
           symbol: "MT" // Certificate Symbol
@@ -203,13 +167,5 @@ export default {
 }
 .modal-body div {
   margin-bottom: 10px;
-}
-.modal-body span {
-  color: red;
-  font-size: 0.8em;
-}
-.modal footer {
-  display: flex;
-  justify-content: flex-end;
 }
 </style>
