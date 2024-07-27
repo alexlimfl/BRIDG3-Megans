@@ -95,10 +95,15 @@ export default {
 
 <style scoped>
 .upload-certificate {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   border: 1px solid #ddd;
   padding: 20px;
   border-radius: 8px;
-  background-color: #f4f4f4;
+  background-color: #170101;
   margin-top: 20px;
 }
 
