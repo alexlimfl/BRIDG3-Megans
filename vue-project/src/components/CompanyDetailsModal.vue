@@ -76,7 +76,7 @@
     justify-content: center;
   }
   .modal {
-    background: white;
+    background: rgb(255, 255, 255);
     padding: 20px;
     border-radius: 5px;
     width: 300px;
