@@ -110,7 +110,7 @@ export default {
       this.phone = '';
       this.image = null;
     },
-    sendPostRequest() {
+    async sendPostRequest() {
       const postData = {
         wallet_address: "0xDDAd72dcC48bf4362ad898CDD1CE3Ad3CB82Aae6",
         name: this.companyName,
@@ -135,7 +135,7 @@ export default {
         console.log('responseMessage', this.responseMessage);
 
 
-        const response = api.postData(postData);
+        const response = await api.postData(postData);
 
         if (response.status >= 200 && response.status < 300) {
           this.responseMessage = 'POST request was successful!';
