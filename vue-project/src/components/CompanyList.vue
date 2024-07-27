@@ -23,6 +23,14 @@
           <td>{{ company.location }}</td>
         </tr>
       </tbody>
+      <div>
+        <h2>Smart Contracts</h2>
+        <ul>
+           <li v-for="contract in smartContractDetails" :key="contract.transactionHash">
+             {{ contract.name }} - {{ contract.symbol}}
+          </li>
+        </ul>
+      </div>
     </table>
     <div class="pagination">
       <button @click="prevPage" :disabled="currentPage === 1">Previous</button>
@@ -42,6 +50,13 @@
 <script>
 import AddCompanyModal from './AddCompanyModal.vue';
 import CompanyDetailsModal from './CompanyDetailsModal.vue';
+import axios from 'axios';
+
+const headers = {
+  'client_id': '74ca1e269e2057a8b07523b20e88fe73eddfe67e19e4c9c37b7d1d25c10df149',
+  'client_secret': 'sk_e7b0252e3dabf1e1c68830ec195ff6ebfc95a2b8a6b324bd94ef8b8b8716dea3',
+  'Content-type': 'application/json'
+};
 
 export default {
   name: 'CompanyList',
@@ -61,7 +76,9 @@ export default {
       itemsPerPage: 5,
       showAddModal: false,
       showDetailsModal: false,
-      selectedCompany: {}
+      selectedCompany: {},
+      smartContract: [],
+      smartContractDetails: []
     };
   },
   computed: {
@@ -77,7 +94,37 @@ export default {
       return Math.ceil(this.companies.length / this.itemsPerPage);
     }
   },
+  mounted() {
+    console.log("created");
+    this.fetchSmartContract();
+  },
   methods: {
+    async fetchSmartContract() {
+      try {
+        const response = await axios.get(`${process.env.VUE_APP_API_URL}/api/certificate/get-smart-contract`, {
+                headers: headers
+              });
+        this.smartContract = response.data.result || [];
+        this.fetchSmartContractDetails();
+        console.log('response', response);
+      } catch (error) {
+        console.error('Error fetching smart contracts:', error);
+      }
+    },
+    async fetchSmartContractDetails() {
+      try {
+        const contractDetailsPromises = this.smartContract.map(contract => {
+          console.log("contract", contract.transactionHash);
+          return axios.get(`${process.env.VUE_APP_API_URL}/api/certificate/get-smart-contract/${contract.contract_address}`, {
+             headers: headers
+          });
+        });
+        const contractDetailsResponses = await Promise.all(contractDetailsPromises);
+        this.smartContractDetails = contractDetailsResponses.map(response => response.data.result);
+      } catch (error) {
+        console.error('Error fetching smart contract details:', error);
+      }
+    },
     addNewCompany() {
       this.showAddModal = true;
     },
