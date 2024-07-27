@@ -198,8 +198,7 @@ header {
   align-items: center;
   width: full;
   font-family: 'Roboto', sans-serif;
-  border-bottom-color: #ffffff;
-  border-bottom-width: 10px;
+  border-bottom: 5px solid #ffffff;
 }
 
 .card-container {
@@ -300,7 +299,7 @@ button:hover {
   padding: 10px 15px;
   cursor: pointer;
   transition: background-color 0.3s;
-  width: 200%;
+  width: 100%;
   
 }
 .donate-button:hover{
