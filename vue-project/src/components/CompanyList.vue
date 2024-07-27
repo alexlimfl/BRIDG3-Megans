@@ -19,6 +19,7 @@
         <div class="card-content">
           <h3>{{ contract.name }}</h3>
           <p><strong>Industry:</strong> {{ contract.symbol }}</p>
+          <button @click.stop="openUploadModal(contract)">Upload Certificate</button>        
         </div>
       </div>
     </div>
@@ -34,6 +35,14 @@
     <router-link to="/">
       <button>Return to HomePage</button>
     </router-link>
+    <upload-certificate
+      v-if="showUploadModal"
+      :walletAddress=selectedContract.walletAddress
+      :toAddress=selectedContract.toAddress
+      :contractAddress="selectedContract.contractAddress"
+      @certificateUploaded="handleCertificateUpload"
+      @cancel="showUploadModal = false"
+    ></upload-certificate>
   </div>
 </template>
 
@@ -41,6 +50,8 @@
 import AddCompanyModal from './AddCompanyModal.vue';
 import CompanyDetailsModal from './CompanyDetailsModal.vue';
 import axios from 'axios';
+import UploadCertificate from './UploadCertificate.vue';
+
 
 const headers = {
   'client_id': '74ca1e269e2057a8b07523b20e88fe73eddfe67e19e4c9c37b7d1d25c10df149',
@@ -48,11 +59,14 @@ const headers = {
   'Content-type': 'application/json'
 };
 
+const walletAddress = "0xBBF5a6486a2100ae17484199Cbb8d320460f6d11";
+
 export default {
   name: 'CompanyList',
   components: {
     AddCompanyModal,
-    CompanyDetailsModal
+    CompanyDetailsModal,
+    UploadCertificate
   },
   data() {
     return {
@@ -66,7 +80,9 @@ export default {
       itemsPerPage: 5,
       showAddModal: false,
       showDetailsModal: false,
+      showUploadModal: false,
       selectedCompany: {},
+      selectedContract: {},
       smartContract: [],
       smartContractDetails: []
     };
@@ -144,6 +160,27 @@ export default {
     },
     editCompany(company) {
       console.log('Edit company:', company);
+    },
+    openUploadModal(contract) {
+      // Ensure the contract object has the necessary properties
+      console.log('contract', contract);
+      console.log('contract contract_address', contract.contract_address);
+      console.log('this.selectedContract.contract_address', this.selectedContract.contract_address);
+
+
+      if (contract && contract.contract_address) {
+        this.selectedContract = {
+          walletAddress: walletAddress,
+          toAddress: walletAddress,
+          contractAddress: contract.contract_address
+        };
+        this.showUploadModal = true;
+      } else {
+        console.error('Contract object is missing required properties');
+      }
+    },
+    handleCertificateUpload(){
+
     }
   }
 };
