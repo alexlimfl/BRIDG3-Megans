@@ -6,7 +6,7 @@
     <div class="search-add">
       <label for="search">Search: </label>
       <input v-model="searchQuery" id="search" placeholder="Type to search..." />
-      <button @click="showModal = true">Add New Company</button>
+      <button @click="showAddModal = true">Add New Company</button>
     </div>
     <table>
       <thead>
@@ -17,7 +17,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="company in filteredCompanies" :key="company.name">
+        <tr v-for="company in filteredCompanies" :key="company.name" @click="showDetails(company)">
           <td>{{ company.name }}</td>
           <td>{{ company.industry }}</td>
           <td>{{ company.location }}</td>
@@ -31,29 +31,38 @@
       </span>
       <button @click="nextPage" :disabled="currentPage === totalPages">Next</button>
     </div>
-    <add-company-modal :is-visible="showModal" @save="addCompany" @cancel="showModal = false"></add-company-modal>
+    <add-company-modal :is-visible="showAddModal" @save="addCompany" @cancel="showAddModal = false"></add-company-modal>
+    <company-details-modal :is-visible="showDetailsModal" :company="selectedCompany" @close="closeDetailsModal" @edit="editCompany"></company-details-modal>
+    <router-link to="/">
+        <button>Return to HomePage</button>
+    </router-link>
   </div>
 </template>
 
 <script>
 import AddCompanyModal from './AddCompanyModal.vue';
+import CompanyDetailsModal from './CompanyDetailsModal.vue';
+// import axios from 'axios';
 
 export default {
   name: 'CompanyList',
   components: {
-    AddCompanyModal
+    AddCompanyModal,
+    CompanyDetailsModal
   },
   data() {
     return {
       searchQuery: '',
       companies: [
-        { name: 'Acme Corp', industry: 'Tech', location: 'NY' },
-        { name: 'Beta Ltd', industry: 'Finance', location: 'SF' },
+        { name: 'Acme Corp', industry: 'Tech', location: 'NY', email: 'info@acme.com', phone: '123-456-7890', certificateUrl: '#' },
+        { name: 'Beta Ltd', industry: 'Finance', location: 'SF', email: 'contact@beta.com', phone: '098-765-4321', certificateUrl: '#' },
         // Add more companies here if needed
       ],
       currentPage: 1,
       itemsPerPage: 5,
-      showModal: false
+      showAddModal: false,
+      showDetailsModal: false,
+      selectedCompany: {}
     };
   },
   computed: {
@@ -70,8 +79,17 @@ export default {
     }
   },
   methods: {
+    // fetchCompanies() {
+    //   axios.get('https://api.example.com/companies')
+    //     .then(response => {
+    //       this.companies = response.data;
+    //     })
+    //     .catch(error => {
+    //       console.error('There was an error fetching the companies!', error);
+    //     });
+    // },
     addNewCompany() {
-      this.showModal = true;
+      this.showAddModal = true;
     },
     prevPage() {
       if (this.currentPage > 1) {
@@ -88,7 +106,17 @@ export default {
     },
     addCompany(newCompany) {
       this.companies.push(newCompany);
-      this.showModal = false;
+      this.showAddModal = false;
+    },
+    showDetails(company) {
+      this.selectedCompany = company;
+      this.showDetailsModal = true;
+    },
+    closeDetailsModal() {
+      this.showDetailsModal = false;
+    },
+    editCompany(company) {
+      console.log('Edit company:', company);
     }
   }
 };
@@ -136,3 +164,4 @@ th {
   text-decoration: underline;
 }
 </style>
+
