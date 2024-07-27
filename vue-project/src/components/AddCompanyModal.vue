@@ -1,128 +1,215 @@
 <template>
-    <div class="modal-overlay" v-if="isVisible">
-      <div class="modal">
-        <header>
-          <h1>Add New Company</h1>
-        </header>
-        <div class="modal-body">
-          <div>
-            <label for="companyName">Company Name:</label>
-            <input v-model="companyName" id="companyName" placeholder="Company Name" />
-          </div>
-          <div>
-            <label for="industry">Industry:</label>
-            <select v-model="industry" id="industry">
-              <option>Tech</option>
-              <option>Finance</option>
-              <option>Health</option>
-              <!-- Add more industries as needed -->
-            </select>
-          </div>
-          <div>
-            <label for="location">Location:</label>
-            <input v-model="location" id="location" placeholder="Location" />
-          </div>
-          <div>
-            <label for="email">Contact Email:</label>
-            <input v-model="email" id="email" placeholder="Contact Email" type="email" />
-          </div>
-          <div>
-            <label for="phone">Phone Number:</label>
-            <input v-model="phone" id="phone" placeholder="Phone Number" type="tel" />
-          </div>
-          <div>
-            <label for="certificate">Upload Certificate:</label>
-            <input type="file" @change="handleFileUpload" id="certificate" />
-          </div>
+  <div class="modal-overlay" v-if="isVisible">
+    <div class="modal">
+      <header>
+        <h1>Add New Company</h1>
+      </header>
+      <div class="modal-body">
+        <div>
+          <label for="companyName">Company Name:</label>
+          <input v-model="companyName" id="companyName" placeholder="Company Name" />
+          <span v-if="errors.companyName">{{ errors.companyName }}</span>
         </div>
-        <footer>
-          <button @click="saveCompany">Save</button>
-          <button @click="cancel">Cancel</button>
-        </footer>
+        <div>
+          <label for="industry">Industry:</label>
+          <select v-model="industry" id="industry">
+            <option>Tech</option>
+            <option>Finance</option>
+            <option>Health</option>
+            <!-- Add more industries as needed -->
+          </select>
+          <span v-if="errors.industry">{{ errors.industry }}</span>
+        </div>
+        <div>
+          <label for="location">Location:</label>
+          <input v-model="location" id="location" placeholder="Location" />
+          <span v-if="errors.location">{{ errors.location }}</span>
+        </div>
+        <div>
+          <label for="email">Contact Email:</label>
+          <input v-model="email" id="email" placeholder="Contact Email" type="email" />
+          <span v-if="errors.email">{{ errors.email }}</span>
+        </div>
+        <div>
+          <label for="phone">Phone Number:</label>
+          <input v-model="phone" id="phone" placeholder="Phone Number" type="tel" />
+          <span v-if="errors.phone">{{ errors.phone }}</span>
+        </div>
+        <div>
+          <label for="image">Upload Image:</label>
+          <input type="file" @change="handleFileUpload" id="image" />
+          <span v-if="errors.image">{{ errors.image }}</span>
+        </div>
+      </div>
+      <footer>
+        <button @click="validateAndSave">Save</button>
+        <button @click="cancel">Cancel</button>
+      </footer>
+      <div>
+        <button @click="sendPostRequest">Send POST Request</button>
+        <p v-if="responseMessage">{{ responseMessage }}</p> <!-- Display response message -->
       </div>
     </div>
-  </template>
-  
-  <script>
-  export default {
-    name: 'AddCompanyModal',
-    props: {
-      isVisible: {
-        type: Boolean,
-        required: true
+  </div>
+</template>
+
+<script>
+import api from '@/api'; // Adjust the path if necessary
+
+export default {
+  name: 'AddCompanyModal',
+  props: {
+    isVisible: {
+      type: Boolean,
+      required: true
+    }
+  },
+  data() {
+    return {
+      companyName: '',
+      industry: '',
+      location: '',
+      email: '',
+      phone: '',
+      image: null,
+      responseMessage: '',
+      errors: {}
+    };
+  },
+  methods: {
+    handleFileUpload(event) {
+      const file = event.target.files[0];
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.image = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    },
+    validateAndSave() {
+      this.errors = {};
+      if (!this.companyName) this.errors.companyName = 'Company Name is required';
+      if (!this.industry) this.errors.industry = 'Industry is required';
+      if (!this.location) this.errors.location = 'Location is required';
+      if (!this.email) {
+        this.errors.email = 'Email is required';
+      } else if (!this.validEmail(this.email)) {
+        this.errors.email = 'Email is not valid';
+      }
+      if (!this.phone) {
+        this.errors.phone = 'Phone Number is required';
+      } else if (!this.validPhone(this.phone)) {
+        this.errors.phone = 'Phone Number is not valid';
+      }
+      if (!this.image) this.errors.image = 'Image is required';
+
+      if (Object.keys(this.errors).length === 0) {
+        this.saveCompany();
       }
     },
-    data() {
-      return {
-        companyName: '',
-        industry: '',
-        location: '',
-        email: '',
-        phone: '',
-        certificate: null
-      };
+    saveCompany() {
+      // Emit an event with the new company data
+      this.$emit('save', {
+        name: this.companyName,
+        industry: this.industry,
+        location: this.location,
+        email: this.email,
+        phone: this.phone,
+        image: this.image
+      });
+      this.resetForm();
     },
-    methods: {
-      handleFileUpload(event) {
-        this.certificate = event.target.files[0];
-      },
-      saveCompany() {
-        // Emit an event with the new company data
-        this.$emit('save', {
-          name: this.companyName,
-          industry: this.industry,
-          location: this.location,
-          email: this.email,
-          phone: this.phone,
-          certificate: this.certificate
-        });
-        this.resetForm();
-      },
-      cancel() {
-        // Emit an event to close the modal
-        this.$emit('cancel');
-        this.resetForm();
-      },
-      resetForm() {
-        this.companyName = '';
-        this.industry = '';
-        this.location = '';
-        this.email = '';
-        this.phone = '';
-        this.certificate = null;
+    cancel() {
+      // Emit an event to close the modal
+      this.$emit('cancel');
+      this.resetForm();
+    },
+    resetForm() {
+      this.companyName = '';
+      this.industry = '';
+      this.location = '';
+      this.email = '';
+      this.phone = '';
+      this.image = null;
+      this.errors = {};
+    },
+    validEmail(email) {
+      const re = /^(([^<>()[\],;:\s@"]+(\.[^<>()[\],;:\s@"]+)*)|(".+"))@(([^<>()[\],;:\s@"]+\.)+[^<>()[\],;:\s@"]{2,})$/i;
+      return re.test(String(email).toLowerCase());
+    },
+    validPhone(phone) {
+      const re = /^[0-9]{10}$/;
+      return re.test(String(phone));
+    },
+    async sendPostRequest() {
+      const postData = {
+        wallet_address: "0xDDAd72dcC48bf4362ad898CDD1CE3Ad3CB82Aae6", // Address used to deploy this contract
+        name: this.companyName, // Contract Nickname
+        field: {
+          wallet_address_owner: "0xDDAd72dcC48bf4362ad898CDD1CE3Ad3CB82Aae6", // Owner of the Certificate contract
+          max_supply: 1000, // Maximum supply
+          name: this.companyName, // Name of Certificate
+          symbol: "MT" // Certificate Symbol
+        },
+        image: this.image, // Base64 encoded image
+        callback_url: "https://postman-echo.com/post?" // Callback URL
+      };
+
+      try {
+        const response = await api.postData(postData);
+
+        // Check for successful status codes
+        if (response.status >= 200 && response.status < 300) {
+          // Success
+          this.responseMessage = 'POST request was successful!';
+          console.log('Response:', response.data); // Log response data
+        } else {
+          // Handle non-success status codes
+          this.responseMessage = `POST request failed with status: ${response.status}`;
+          alert(`Failed to send POST request. Status: ${response.status}`); // Alert on failure
+          console.error('Error:', response);
+        }
+      } catch (error) {
+        // Handle network or other errors
+        this.responseMessage = 'An error occurred while sending the POST request.';
+        alert('An error occurred while sending the POST request. Please try again.'); // Alert on error
+        console.error('Error during POST request:', error);
       }
     }
-  };
-  </script>
-  
-  <style>
-  .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
   }
-  .modal {
-    background: white;
-    padding: 20px;
-    border-radius: 5px;
-    width: 300px;
-  }
-  .modal header {
-    font-size: 1.5em;
-    margin-bottom: 10px;
-  }
-  .modal-body div {
-    margin-bottom: 10px;
-  }
-  .modal footer {
-    display: flex;
-    justify-content: flex-end;
-  }
-  </style>
-  
+};
+</script>
+
+<style scoped>
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal {
+  background: white;
+  padding: 20px;
+  border-radius: 5px;
+  width: 300px;
+}
+.modal header {
+  font-size: 1.5em;
+  margin-bottom: 10px;
+}
+.modal-body div {
+  margin-bottom: 10px;
+}
+.modal-body span {
+  color: red;
+  font-size: 0.8em;
+}
+.modal footer {
+  display: flex;
+  justify-content: flex-end;
+}
+</style>
