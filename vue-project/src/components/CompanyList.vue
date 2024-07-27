@@ -5,22 +5,18 @@
     </header>
     <div class="search-add">
       <label for="search">Search: </label>
-      <input v-model="searchQuery" id="search" placeholder="Type to search..." />
+      <input v-model=" searchQuery " id="search" placeholder="Type to search..." />
       <button @click="showAddModal = true">Add New Company</button>
     </div>
     <div class="card-container">
-      <div 
-        class="card" 
-        v-for="contract in filteredCompanies" 
-        :key="contract.transactionHash" 
-        @click="showDetails(contract)"
-      >
-        <img :src="require(`@/assets/Beta_logo.jpeg`)" alt="Company Logo" class="card-image" />
+      <div class="card" v-for="       contract in filteredCompanies                               "
+        :key=" contract.transactionHash " @click="showDetails( contract )">
+        <img :src=" require( `@/assets/Beta_logo.jpeg` ) " alt="Company Logo" class="card-image" />
         <div class="card-content">
           <h3>{{ contract.name }}</h3>
           <p><strong>Industry:</strong> {{ contract.symbol }}</p>
-          <button @click.stop="openUploadModal(contract)">Upload Certificate</button>        
-          <button class="donate-button">Donate</button>
+          <button @click.stop="openUploadModal( contract )">Upload Certificate</button>
+          <button @click.stop class="donate-button">Donate</button>
         </div>
       </div>
     </div>
@@ -31,19 +27,16 @@
       </span>
       <button @click="nextPage" :disabled="currentPage === totalPages">Next</button> -->
     </div>
-    <add-company-modal :is-visible="showAddModal" @save="addCompany" @cancel="showAddModal = false"></add-company-modal>
-    <company-details-modal :is-visible="showDetailsModal" :company="selectedCompany" @close="closeDetailsModal" @edit="editCompany"></company-details-modal>
+    <add-company-modal :is-visible=" showAddModal " @save=" addCompany "
+      @cancel="showAddModal = false"></add-company-modal>
+    <company-details-modal :is-visible=" showDetailsModal " :company=" selectedCompany " @close=" closeDetailsModal "
+      @edit=" editCompany "></company-details-modal>
     <router-link to="/">
       <button>Return to HomePage</button>
     </router-link>
-    <upload-certificate
-      v-if="showUploadModal"
-      :walletAddress=selectedContract.walletAddress
-      :toAddress=selectedContract.toAddress
-      :contractAddress="selectedContract.contractAddress"
-      @certificateUploaded="handleCertificateUpload"
-      @cancel="showUploadModal = false"
-    ></upload-certificate>
+    <upload-certificate-modal :is-visible=" showUploadModal " :walletAddress=" selectedContract.walletAddress "
+      :toAddress=" selectedContract.toAddress " :contractAddress=" selectedContract.contractAddress "
+      @certificateUploaded=" handleCertificateUpload " @close="showUploadModal = false"></upload-certificate-modal>
   </div>
 </template>
 
@@ -51,8 +44,7 @@
 import AddCompanyModal from './AddCompanyModal.vue';
 import CompanyDetailsModal from './CompanyDetailsModal.vue';
 import axios from 'axios';
-import UploadCertificate from './UploadCertificate.vue';
-
+import UploadCertificateModal from './UploadCertificateModal.vue';
 
 const headers = {
   'client_id': '74ca1e269e2057a8b07523b20e88fe73eddfe67e19e4c9c37b7d1d25c10df149',
@@ -67,7 +59,7 @@ export default {
   components: {
     AddCompanyModal,
     CompanyDetailsModal,
-    UploadCertificate
+    UploadCertificateModal,
   },
   data() {
     return {
@@ -85,7 +77,7 @@ export default {
   },
   computed: {
     filteredCompanies() {
-      const filtered = this.smartContractDetails.filter(contract => 
+      const filtered = this.smartContractDetails.filter(contract =>
         contract.name.toLowerCase().includes(this.searchQuery.toLowerCase())
       );
       const start = (this.currentPage - 1) * this.itemsPerPage;
@@ -103,7 +95,7 @@ export default {
   methods: {
     async fetchSmartContract() {
       try {
-        const response = await axios.get(`${process.env.VUE_APP_API_URL}/api/certificate/get-smart-contract`, {
+        const response = await axios.get(`${ process.env.VUE_APP_API_URL }/api/certificate/get-smart-contract`, {
           headers: headers
         });
         this.smartContract = response.data.result || [];
@@ -117,7 +109,7 @@ export default {
       try {
         const contractDetailsPromises = this.smartContract.map(contract => {
           console.log("contract", contract.transactionHash);
-          return axios.get(`${process.env.VUE_APP_API_URL}/api/certificate/get-smart-contract/${contract.contract_address}`, {
+          return axios.get(`${ process.env.VUE_APP_API_URL }/api/certificate/get-smart-contract/${ contract.contract_address }`, {
             headers: headers
           });
         });
@@ -170,12 +162,14 @@ export default {
           toAddress: walletAddress,
           contractAddress: contract.contract_address
         };
+        console.log('Modal should now be visible');
         this.showUploadModal = true;
       } else {
         console.error('Contract object is missing required properties');
       }
     },
-    handleCertificateUpload(){
+    handleCertificateUpload() {
+      this.showUploadModal = true;
 
     }
   }
@@ -188,6 +182,7 @@ export default {
   margin: 0 auto;
   font-family: Arial, sans-serif;
 }
+
 header {
   background-color: #000000;
   color: white;
@@ -209,6 +204,7 @@ header {
   justify-content: center;
   text-align: center;
 }
+
 .card {
   color: rgb(0, 0, 0);
   background-color: #f4f4f4;
@@ -216,18 +212,26 @@ header {
   border-radius: 25px;
   padding: 20px;
   cursor: pointer;
-  width: calc(30% - 20px); /* Adjust width to fit cards in a row */
+  width: calc(30% - 20px);
+  /* Adjust width to fit cards in a row */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   display: flex;
-  align-items: center; /* Center-align items vertically */
+  align-items: center;
+  /* Center-align items vertically */
 }
+
 .card-image {
-  width: 100%; /* Make image responsive to the card's width */
-  max-width: 150px; /* Limit the maximum width */
-  height: 150px; /* Keep aspect ratio */
+  width: 100%;
+  /* Make image responsive to the card's width */
+  max-width: 150px;
+  /* Limit the maximum width */
+  height: 150px;
+  /* Keep aspect ratio */
   object-fit: contain;
-  margin-right: 25px; /* Add space between image and text */
+  margin-right: 25px;
+  /* Add space between image and text */
 }
+
 .card-content {
   color: rgb(0, 0, 0);
   display: flex;
@@ -235,23 +239,26 @@ header {
   justify-content: center;
 }
 
-h3{
+h3 {
   color: rgb(0, 0, 0);
 }
 
 .card:hover {
   background-color: #e0e0e0;
 }
+
 .pagination {
   margin: 40px 0;
   text-align: center;
 }
+
 .pagination button,
 .pagination span {
   margin: 0 5px;
   padding: 5px 10px;
   cursor: pointer;
 }
+
 .pagination span.active {
   font-weight: bold;
   text-decoration: underline;
@@ -282,10 +289,14 @@ button:hover {
 }
 
 .search-bar {
-  width: 400px; /* Increase the width */
-  height: 40px; /* Increase the height */
-  padding: 10px 20px; /* Adjust padding */
-  font-size: 18px; /* Increase font size */
+  width: 400px;
+  /* Increase the width */
+  height: 40px;
+  /* Increase the height */
+  padding: 10px 20px;
+  /* Adjust padding */
+  font-size: 18px;
+  /* Increase font size */
   border: 1px solid #ddd;
   border-radius: 25px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -300,10 +311,10 @@ button:hover {
   cursor: pointer;
   transition: background-color 0.3s;
   width: 100%;
-  
-}
-.donate-button:hover{
-  background-color: #6ab350;
+
 }
 
+.donate-button:hover {
+  background-color: #6ab350;
+}
 </style>
