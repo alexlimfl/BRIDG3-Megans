@@ -11,15 +11,14 @@
     <div class="card-container">
       <div 
         class="card" 
-        v-for="company in filteredCompanies" 
-        :key="company.name" 
-        @click="showDetails(company)"
+        v-for="contract in smartContractDetails" 
+        :key="contract.transactionHash" 
+        @click="showDetails(contract)"
       >
-        <img :src="company.imageUrl" alt="Company Logo" class="card-image" />
+        <img :src="require(`@/assets/Beta_logo.jpeg`)" alt="Company Logo" class="card-image" />
         <div class="card-content">
-          <h3>{{ company.name }}</h3>
-          <p><strong>Industry:</strong> {{ company.industry }}</p>
-          <p><strong>Location:</strong> {{ company.location }}</p>
+          <h3>{{ contract.name }}</h3>
+          <p><strong>Industry:</strong> {{ contract.symbol }}</p>
         </div>
       </div>
     </div>
@@ -168,7 +167,7 @@ header {
 .card-container {
   display: flex;
   flex-wrap: wrap;
-  gap: 20px;
+  gap: 15px;
 }
 .card {
   background-color: #f4f4f4;
@@ -182,10 +181,11 @@ header {
   align-items: center; /* Center-align items vertically */
 }
 .card-image {
-  width: 150px; /* Adjust size as needed */
-  height: 150; /* Adjust size as needed */
+  width: 100%; /* Make image responsive to the card's width */
+  max-width: 150px; /* Limit the maximum width */
+  height: 150px; /* Keep aspect ratio */
   object-fit: contain;
-  margin-right: 65px; /* Add space between image and text */
+  margin-right: 25px; /* Add space between image and text */
 }
 .card-content {
   display: flex;
