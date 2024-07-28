@@ -1,18 +1,30 @@
 <template>
   <div v-if=" isVisible " class="upload-certificate">
-    <h3>Upload New Certificate</h3>
-    <input type="text" v-model=" name " placeholder="Certificate Name" required />
-    <textarea v-model=" description " placeholder="Description" required></textarea>
-    <input type="url" v-model=" callbackUrl " placeholder="Callback URL" required />
-    <input type="file" @change=" handleFileUpload " required />
-    <textarea v-model=" attributes " placeholder="Attributes (JSON format)"></textarea>
-    <button @click=" uploadCertificate ">Upload</button>
-    <p v-if=" uploadStatus ">{{ uploadStatus }}</p>
+    <div class="upload-certificate-content">
+      <h2>Upload New Certificate</h2>
+      <input type="text" v-model=" name " placeholder="Certificate Name" required />
+      <textarea v-model=" description " placeholder="Description" required></textarea>
+      <input type="file" @change=" handleFileUpload " required />
+      <textarea v-model=" attributes " placeholder="Attributes (JSON format)"></textarea>
+      <div class="button-group">
+        <button @click=" uploadCertificate ">Upload</button>
+        <button @click="$emit( 'close' )">Cancel</button>
+      </div>
+      <p v-if=" uploadStatus ">{{ uploadStatus }}</p>
+    </div>
   </div>
 </template>
 
 <script>
 import axios from 'axios';
+const clientId = process.env.VUE_APP_CLIENT_ID;
+const clientSecret = process.env.VUE_APP_CLIENT_SECRET;
+
+const headers = {
+  'client_id': clientId,
+  'client_secret': clientSecret,
+  'Content-Type': 'multipart/form-data'
+};
 
 export default {
   name: 'UploadCertificateModal',
@@ -40,15 +52,15 @@ export default {
       uploadStatus: '',
       name: '',
       description: '',
-      callbackUrl: '',
+      callbackUrl: `${ process.env.VUE_APP_API_URL }/companyList`,
       attributes: ''
     };
   },
   mounted() {
     console.log('upload load');
-    console.log("this.contractAddress", this.contractAddress)
-    console.log("this.walletAddress", this.walletAddress)
-    console.log("this.toAddress", this.toAddress)
+    console.log("this.contractAddress", this.contractAddress);
+    console.log("this.walletAddress", this.walletAddress);
+    console.log("this.toAddress", this.toAddress);
   },
   methods: {
     handleFileUpload(event) {
@@ -76,11 +88,7 @@ export default {
         const response = await axios.post(
           `${ process.env.VUE_APP_API_URL }/api/certificate/mint-certificate`,
           formData, {
-          headers: {
-            'client_id': '74ca1e269e2057a8b07523b20e88fe73eddfe67e19e4c9c37b7d1d25c10df149',
-            'client_secret': 'sk_e7b0252e3dabf1e1c68830ec195ff6ebfc95a2b8a6b324bd94ef8b8b8716dea3',
-            'Content-Type': 'multipart/form-data'
-          }
+          headers: headers
         });
         this.uploadStatus = 'Upload successful!';
         this.$emit('certificateUploaded', response.data);
@@ -96,23 +104,41 @@ export default {
 <style scoped>
 .upload-certificate {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   border: 1px solid #ddd;
   padding: 20px;
   border-radius: 8px;
-  background-color: #170101;
-  margin-top: 20px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 400px;
+  z-index: 1000;
+}
+
+.upload-certificate-content {
+  display: flex;
+  flex-direction: column;
 }
 
 .upload-certificate h3 {
   margin-bottom: 10px;
+  text-align: center;
 }
 
-.upload-certificate input {
+.upload-certificate input,
+.upload-certificate textarea {
   margin-bottom: 10px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.button-group {
+  display: flex;
+  justify-content: space-between;
 }
 
 .upload-certificate button {
@@ -122,6 +148,9 @@ export default {
   padding: 10px 15px;
   cursor: pointer;
   border-radius: 5px;
+  flex: 1;
+  margin: 5px;
+  transition: background-color 0.3s;
 }
 
 .upload-certificate button:hover {
@@ -131,5 +160,6 @@ export default {
 .upload-certificate p {
   margin-top: 10px;
   color: green;
+  text-align: center;
 }
 </style>

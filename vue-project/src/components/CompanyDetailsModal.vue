@@ -1,44 +1,37 @@
 <template>
-  <div class="modal-overlay" v-if="isVisible">
+  <div class="modal-overlay" v-if=" isVisible ">
     <div class="modal">
       <header>
-        <h2>Company Details</h2>
+        <h2>{{ company.name }}</h2>
       </header>
       <div class="modal-body">
         <div class="info-item">
-          <label>Company Name:</label>
-          <span>{{ company.name }}</span>
+          <label>Description:</label>
+          <span>{{ company.symbol }}</span>
         </div>
         <div class="info-item">
-          <label>Industry:</label>
-          <span>{{ company.industry }}</span>
+          <label>Address:</label>
+          <span class="contract-address">{{ truncatedAddress }}</span>
+          <button @click="copyToClipboard( company.contract_address )" class="copy-button">Copy</button>
         </div>
-        <div class="info-item">
-          <label>Location:</label>
-          <span>{{ company.location }}</span>
-        </div>
-        <div class="info-item">
-          <label>Contact Email:</label>
-          <span>{{ company.email }}</span>
-        </div>
-        <div class="info-item">
-          <label>Phone Number:</label>
-          <span>{{ company.phone }}</span>
-        </div>
-        <div class="info-item">
-          <label>Certificate:</label>
-          <a :href="company.certificateUrl" target="_blank" class="download-link">Download/View</a>
+        <div class="info-item" v-if=" certificateUrl ">
+          <label> Certificate: </label>
+          <a :href=" certificateUrl " target=" _blank" class="download-link">Download/View</a>
         </div>
       </div>
       <footer>
-        <button @click="editCompany" class="edit-button">Edit</button>
-        <button @click="closeModal" class="close-button">Close</button>
+        <!-- <button @click=" editCompany " class="edit-button">Edit</button> -->
+        <button @click=" closeModal " class="close-button">Close</button>
       </footer>
     </div>
   </div>
 </template>
 
 <script>
+import axios from 'axios';
+
+const walletAddressEnv = process.env.VUE_APP_WALLET_ADDRESS;
+
 export default {
   name: 'CompanyDetailsModal',
   props: {
@@ -51,12 +44,60 @@ export default {
       required: true
     }
   },
+  data() {
+    return {
+      certificateUrl: null
+    };
+  },
+  computed: {
+    truncatedAddress() {
+      if (!this.company.contract_address) return '';
+      const address = this.company.contract_address;
+      return `${ address.slice(0, 6) }…${ address.slice(-4) }`;
+    }
+  },
+  watch: {
+    isVisible(newVal) {
+      if (newVal) {
+        this.fetchCertificateDetails();
+      }
+    }
+  },
   methods: {
+    async fetchCertificateDetails() {
+      try {
+        const response = await axios.get(`${ process.env.VUE_APP_API_URL }/api/certificate/get-certificate`, {
+          params: {
+            from: walletAddressEnv,
+            to: walletAddressEnv,
+            contract_address: this.company.contract_address,
+            // transaction_id: this.company.transactionHash
+          },
+          headers: {
+            'client_id': process.env.VUE_APP_CLIENT_ID,
+            'client_secret': process.env.VUE_APP_CLIENT_SECRET,
+            'Content-type': 'application/json'
+          }
+        });
+        this.certificateUrl = response.data.result[0].certificate_file;
+        console.log('response.data.result', response.data.result);
+        console.log('certificate', this.certificateUrl);
+      } catch (error) {
+        console.error('Error fetching certificate details:', error);
+      }
+    },
     editCompany() {
       this.$emit('edit', this.company);
     },
     closeModal() {
       this.$emit('close');
+    },
+    copyToClipboard(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        alert('Address copied to clipboard!');
+      }).catch(err => {
+        console.error('Could not copy text: ', err);
+      });
     }
   }
 };
@@ -88,8 +129,8 @@ export default {
   font-size: 1.6em;
   color: #333;
   border-bottom: 2px solid #4a90e2;
-  padding-bottom: 10px;
-  margin-bottom: 20px;
+  padding-bottom: 5px;
+  margin-bottom: 5px;
 }
 
 .info-item {
@@ -125,7 +166,8 @@ footer {
   gap: 10px;
 }
 
-.edit-button, .close-button {
+.edit-button,
+.close-button {
   font-size: 16px;
   padding: 10px 15px;
   border: none;

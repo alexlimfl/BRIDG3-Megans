@@ -9,7 +9,8 @@
       <button @click="showAddModal = true">Add New Company</button>
     </div>
     <div class="card-container">
-      <div class="card" v-for="       contract in filteredCompanies                               "
+      <div class="card"
+        v-for="                                     contract in filteredCompanies                                                             "
         :key=" contract.transactionHash " @click="showDetails( contract )">
         <img :src=" require( `@/assets/Beta_logo.jpeg` ) " alt="Company Logo" class="card-image" />
         <div class="card-content">
@@ -20,13 +21,13 @@
         </div>
       </div>
     </div>
-    <div class="pagination">
-      <!-- <button @click="prevPage" :disabled="currentPage === 1">Previous</button>
-      <span v-for="page in totalPages" :key="page" @click="goToPage(page)" :class="{ active: currentPage === page }">
+    <!-- <div class="pagination">
+      <button @click=" prevPage " :disabled=" currentPage === 1 ">Previous</button>
+      <span v-for=" page in totalPages " :key=" page " @click="goToPage( page )" :class=" { active: currentPage === page } ">
         {{ page }}
       </span>
-      <button @click="nextPage" :disabled="currentPage === totalPages">Next</button> -->
-    </div>
+      <button @click=" nextPage " :disabled=" currentPage === totalPages ">Next</button>
+    </div> -->
     <add-company-modal :is-visible=" showAddModal " @save=" addCompany "
       @cancel="showAddModal = false"></add-company-modal>
     <company-details-modal :is-visible=" showDetailsModal " :company=" selectedCompany " @close=" closeDetailsModal "
@@ -46,13 +47,16 @@ import CompanyDetailsModal from './CompanyDetailsModal.vue';
 import axios from 'axios';
 import UploadCertificateModal from './UploadCertificateModal.vue';
 
+const walletAddressEnv = process.env.VUE_APP_WALLET_ADDRESS;
+const clientId = process.env.VUE_APP_CLIENT_ID;
+const clientSecret = process.env.VUE_APP_CLIENT_SECRET;
 const headers = {
-  'client_id': '74ca1e269e2057a8b07523b20e88fe73eddfe67e19e4c9c37b7d1d25c10df149',
-  'client_secret': 'sk_e7b0252e3dabf1e1c68830ec195ff6ebfc95a2b8a6b324bd94ef8b8b8716dea3',
+  'client_id': clientId,
+  'client_secret': clientSecret,
   'Content-type': 'application/json'
 };
 
-const walletAddress = "0xBBF5a6486a2100ae17484199Cbb8d320460f6d11";
+const walletAddress = walletAddressEnv;
 
 export default {
   name: 'CompanyList',
@@ -65,7 +69,7 @@ export default {
     return {
       searchQuery: '',
       currentPage: 1,
-      itemsPerPage: 5,
+      itemsPerPage: 20,
       showAddModal: false,
       showDetailsModal: false,
       showUploadModal: false,
@@ -77,9 +81,10 @@ export default {
   },
   computed: {
     filteredCompanies() {
-      const filtered = this.smartContractDetails.filter(contract =>
-        contract.name.toLowerCase().includes(this.searchQuery.toLowerCase())
-      );
+      const filtered = this.smartContractDetails.filter(contract => {
+        const name = contract.name || ''; // Default to empty string if name is undefined
+        return name.toLowerCase().includes(this.searchQuery.toLowerCase());
+      });
       const start = (this.currentPage - 1) * this.itemsPerPage;
       const end = start + this.itemsPerPage;
       return filtered.slice(start, end);
@@ -89,7 +94,6 @@ export default {
     }
   },
   mounted() {
-    console.log("created");
     this.fetchSmartContract();
   },
   methods: {
@@ -108,7 +112,6 @@ export default {
     async fetchSmartContractDetails() {
       try {
         const contractDetailsPromises = this.smartContract.map(contract => {
-          console.log("contract", contract.transactionHash);
           return axios.get(`${ process.env.VUE_APP_API_URL }/api/certificate/get-smart-contract/${ contract.contract_address }`, {
             headers: headers
           });

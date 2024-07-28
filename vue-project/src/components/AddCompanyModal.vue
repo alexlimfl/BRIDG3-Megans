@@ -1,5 +1,5 @@
 <template>
-  <div class="modal-overlay" v-if="isVisible">
+  <div class="modal-overlay" v-if=" isVisible ">
     <div class="modal">
       <header>
         <h5>Add New Company</h5>
@@ -7,43 +7,38 @@
       <div class="modal-body">
         <div>
           <label for="companyName">Company Name: </label>
-          <input v-model="companyName" id="companyName" placeholder="Company Name" />
+          <input v-model=" companyName " id="companyName" placeholder="Company Name" />
         </div>
         <div>
-          <label for="industry">Industry: </label>
-          <select v-model="industry" id="industry">
-            <option>Tech</option>
-            <option>Finance</option>
-            <option>Health</option>
-            <!-- Add more industries as needed -->
-          </select>
+          <label for="Description">Description: </label>
+          <input v-model=" symbol " id="description" placeholder="Description" />
         </div>
-        <div>
-          <label for="location">Location: </label>
-          <input v-model="location" id="location" placeholder="Location" />
-        </div>
-        <div>
-          <label for="email">Contact Email: </label>
-          <input v-model="email" id="email" placeholder="Contact Email" type="email" />
-        </div>
-        <div>
-          <label for="phone">Phone Number: </label>
-          <input v-model="phone" id="phone" placeholder="Phone Number" type="tel" />
-        </div>
-        <div class="file-input-container">
+        <!-- <div class="file-input-container">
           <label for="certificate">Upload Certificate:</label>
-          <input type="file" @change="handleFileUpload" id="certificate" />
-        </div>
+          <input type="file" @change=" handleFileUpload " id="certificate" />
+        </div> -->
       </div>
       <footer>
-        <button @click="saveCompany">Save</button>
-        <button @click="cancel">Cancel</button>
+        <button @click=" createSmartContract ">Create</button>
+        <button @click=" cancel ">Cancel</button>
       </footer>
     </div>
   </div>
 </template>
 
 <script>
+import axios from 'axios';
+
+const walletAddressEnv = process.env.VUE_APP_WALLET_ADDRESS;
+const clientId = process.env.VUE_APP_CLIENT_ID;
+const clientSecret = process.env.VUE_APP_CLIENT_SECRET;
+const headers = {
+  'client_id': clientId,
+  'client_secret': clientSecret,
+  'Content-type': 'application/json'
+};
+const walletAddress = walletAddressEnv;
+
 export default {
   name: 'AddCompanyModal',
   props: {
@@ -55,8 +50,7 @@ export default {
   data() {
     return {
       companyName: '',
-      industry: '',
-      location: '',
+      symbol: '',
       email: '',
       phone: '',
       certificate: null
@@ -66,17 +60,31 @@ export default {
     handleFileUpload(event) {
       this.certificate = event.target.files[0];
     },
-    saveCompany() {
+    async createSmartContract() {
       // Emit an event with the new company data
-      this.$emit('save', {
+      const data = {
+        wallet_address: walletAddress,
         name: this.companyName,
-        industry: this.industry,
-        location: this.location,
-        email: this.email,
-        phone: this.phone,
-        certificate: this.certificate
-      });
-      this.resetForm();
+        field: {
+          wallet_address_owner: walletAddress,
+          max_supply: 5,
+          name: this.companyName,
+          symbol: this.symbol
+        }
+      };
+      console.log('data', data);
+      try {
+        const response = await axios.post(
+          `${ process.env.VUE_APP_API_URL }/api/certificate/create-smartcontract`,
+          data,
+          { headers: headers }
+        );
+        console.log('Smart contract created:', response.data);
+        this.$emit('save', response.data);
+        this.resetForm();
+      } catch (error) {
+        console.error('Error creating smart contract:', error);
+      }
     },
     cancel() {
       // Emit an event to close the modal
@@ -107,24 +115,29 @@ export default {
   align-items: center;
   justify-content: center;
 }
+
 .modal {
   background: white;
   padding: 20px;
   border-radius: 10px;
   width: 300px;
 }
+
 .modal header {
   font-size: 1.5em;
   margin-bottom: 10px;
 }
+
 .modal-body div {
   margin-bottom: 10px;
 }
+
 .file-input-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
+
 .modal footer {
   display: flex;
   justify-content: flex-end;
