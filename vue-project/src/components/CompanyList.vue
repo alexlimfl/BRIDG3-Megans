@@ -10,7 +10,7 @@
     </div>
     <div class="card-container">
       <div class="card"
-        v-for="                                       contract in filteredCompanies                                                               "
+        v-for="  contract in filteredCompanies                                                                   "
         :key=" contract.transactionHash " @click="showDetails( contract )">
         <img :src=" require( `@/assets/Beta_logo.jpeg` ) " alt="Company Logo" class="card-image" />
         <div class="card-content">
@@ -28,13 +28,13 @@
       </span>
       <button @click=" nextPage " :disabled=" currentPage === totalPages ">Next</button>
     </div> -->
-    <add-company-modal :is-visible=" showAddModal " @save=" addCompany "
+    <add-company-modal :is-visible=" showAddModal " @companyAdded=" fetchSmartContract " @save=" addCompany "
       @cancel="showAddModal = false"></add-company-modal>
     <company-details-modal :is-visible=" showDetailsModal " :company=" selectedCompany " @close=" closeDetailsModal "
       @edit=" editCompany "></company-details-modal>
-    <router-link to="/">
+    <!-- <router-link to="/">
       <button>Return to HomePage</button>
-    </router-link>
+    </router-link> -->
     <upload-certificate-modal :is-visible=" showUploadModal " :walletAddress=" selectedContract.walletAddress "
       :toAddress=" selectedContract.toAddress " :contractAddress=" selectedContract.contractAddress "
       @certificateUploaded=" handleCertificateUpload " @close="showUploadModal = false"></upload-certificate-modal>

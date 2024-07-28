@@ -1,9 +1,9 @@
 <template>
   <div>
-    <img :src="imageSrc" alt="Description">
+    <img :src=" imageSrc " alt="Description">
     <h3>- Trusted Fundraising Certification Group -</h3>
     <router-link to="/companylist">
-      <button>Company List</button>
+      <button>Project List</button>
     </router-link>
   </div>
 </template>

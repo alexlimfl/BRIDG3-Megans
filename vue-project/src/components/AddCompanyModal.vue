@@ -2,25 +2,25 @@
   <div class="modal-overlay" v-if=" isVisible ">
     <div class="modal">
       <header>
-        <h5>Add New Company</h5>
+        <h5>Add New Project</h5>
       </header>
       <div class="modal-body">
-        <div>
-          <label for="companyName">Company Name: </label>
-          <input v-model=" companyName " id="companyName" placeholder="Company Name" />
+        <div class="form-group">
+          <label for="companyName">Project Name:</label>
+          <input v-model=" companyName " id="companyName" placeholder="Project Name" />
         </div>
-        <div>
-          <label for="Description">Description: </label>
+        <div class="form-group">
+          <label for="description">Description:</label>
           <input v-model=" symbol " id="description" placeholder="Description" />
         </div>
-        <!-- <div class="file-input-container">
+        <!-- <div class="form-group">
           <label for="certificate">Upload Certificate:</label>
-          <input type="file" @change=" handleFileUpload " id="certificate" />
+          <input type="file" @change="handleFileUpload" id="certificate" />
         </div> -->
       </div>
       <footer>
-        <button @click=" createSmartContract ">Create</button>
-        <button @click=" cancel ">Cancel</button>
+        <button class="btn btn-primary" @click=" createSmartContract ">Create</button>
+        <button class="btn btn-secondary" @click=" cancel ">Cancel</button>
       </footer>
     </div>
   </div>
@@ -61,7 +61,6 @@ export default {
       this.certificate = event.target.files[0];
     },
     async createSmartContract() {
-      // Emit an event with the new company data
       const data = {
         wallet_address: walletAddress,
         name: this.companyName,
@@ -81,20 +80,19 @@ export default {
         );
         console.log('Smart contract created:', response.data);
         this.$emit('save', response.data);
+        this.$emit('companyAdded');
         this.resetForm();
       } catch (error) {
         console.error('Error creating smart contract:', error);
       }
     },
     cancel() {
-      // Emit an event to close the modal
       this.$emit('cancel');
       this.resetForm();
     },
     resetForm() {
       this.companyName = '';
-      this.industry = '';
-      this.location = '';
+      this.symbol = '';
       this.email = '';
       this.phone = '';
       this.certificate = null;
@@ -114,32 +112,64 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 1000;
 }
 
 .modal {
   background: white;
   padding: 20px;
   border-radius: 10px;
-  width: 300px;
+  width: 400px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-.modal header {
+header h5 {
+  margin: 0;
   font-size: 1.5em;
-  margin-bottom: 10px;
+  text-align: center;
 }
 
-.modal-body div {
-  margin-bottom: 10px;
+.modal-body {
+  margin-top: 15px;
 }
 
-.file-input-container {
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 8px;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+footer {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  margin-top: 20px;
 }
 
-.modal footer {
-  display: flex;
-  justify-content: flex-end;
+footer .btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+footer .btn-primary {
+  background-color: #007bff;
+  color: white;
+}
+
+footer .btn-secondary {
+  background-color: #6c757d;
+  color: white;
 }
 </style>
