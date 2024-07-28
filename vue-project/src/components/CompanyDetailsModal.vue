@@ -16,7 +16,7 @@
         </div>
         <div class="info-item" v-if=" certificateUrl ">
           <label> Certificate: </label>
-          <a :href=" certificateUrl " target=" _blank" class="download-link">Download/View</a>
+          <a :href=" certificateUrl " target=" _blank" class="download-link">View</a>
         </div>
       </div>
       <footer>
@@ -71,7 +71,7 @@ export default {
             from: walletAddressEnv,
             to: walletAddressEnv,
             contract_address: this.company.contract_address,
-            // transaction_id: this.company.transactionHash
+            transaction_id: this.company.transactionHash
           },
           headers: {
             'client_id': process.env.VUE_APP_CLIENT_ID,
@@ -79,7 +79,9 @@ export default {
             'Content-type': 'application/json'
           }
         });
-        this.certificateUrl = response.data.result[0].certificate_file;
+        this.certificateUrl = response.data.result
+          .filter(item => item.blockNumber !== null && item.contract_address == this.company.contract_address)
+          .map(item => item.certificate_image_file)[0];
         console.log('response.data.result', response.data.result);
         console.log('certificate', this.certificateUrl);
       } catch (error) {

@@ -1,7 +1,7 @@
 <template>
   <div class="company-list">
     <header>
-      <h1>Company List</h1>
+      <h1>Project List</h1>
     </header>
     <div class="search-add">
       <label for="search">Search: </label>
@@ -10,12 +10,12 @@
     </div>
     <div class="card-container">
       <div class="card"
-        v-for="                                     contract in filteredCompanies                                                             "
+        v-for="                                       contract in filteredCompanies                                                               "
         :key=" contract.transactionHash " @click="showDetails( contract )">
         <img :src=" require( `@/assets/Beta_logo.jpeg` ) " alt="Company Logo" class="card-image" />
         <div class="card-content">
           <h3>{{ contract.name }}</h3>
-          <p><strong>Industry:</strong> {{ contract.symbol }}</p>
+          <p><strong>Details:</strong> {{ contract.symbol }}</p>
           <button @click.stop="openUploadModal( contract )">Upload Certificate</button>
           <button @click.stop class="donate-button">Donate</button>
         </div>
